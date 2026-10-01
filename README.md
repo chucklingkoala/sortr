@@ -4,6 +4,8 @@
 
 **Sortr moves files into the right folders by reading their names.**
 
+**[⬇ Download Sortr.exe](https://github.com/chucklingkoala/sortr/releases/latest)**: a single file with nothing to install. It runs on 64-bit Windows 10/11.
+
 You have a folder full of loose files whose names mention who or what they belong to:
 
 ```
@@ -98,6 +100,17 @@ This produces `publish/Sortr.exe`, a single file of about 60 MB. It runs on any 
 - WPF's native DLLs are bundled too. They're unpacked to a temp folder on first launch.
 
 The exe isn't code-signed, so Windows SmartScreen may warn on first run. Click *More info → Run anyway*.
+
+### Releasing
+
+Push a version tag. GitHub Actions then runs the tests, builds `Sortr.exe` and publishes it as a GitHub Release, along with a SHA-256 checksum:
+
+```
+git tag v1.2.3
+git push origin v1.2.3
+```
+
+The tag sets the version number stamped into the exe. The workflow is in [.github/workflows/release.yml](.github/workflows/release.yml).
 
 ### App icon
 

@@ -1,0 +1,44 @@
+name: Release
+
+# Push a version tag to build Sortr.exe and publish it as a GitHub Release:
+#   git tag v1.2.3
+#   git push origin v1.2.3
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Test
+        run: dotnet test -c Release
+
+      - name: Publish single-file exe
+        shell: pwsh
+        run: |
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          dotnet publish src/Sortr.App -p:PublishProfile=SingleFile -p:Version=$version
+          $hash = (Get-FileHash publish/Sortr.exe -Algorithm SHA256).Hash.ToLower()
+          "$hash  Sortr.exe" | Set-Content publish/Sortr.exe.sha256 -NoNewline
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            publish/Sortr.exe
+            publish/Sortr.exe.sha256
+          generate_release_notes: true
+          body: |
+            Download **Sortr.exe** below and run it. Nothing to install: it runs on 64-bit Windows 10/11 without .NET.
+
+            The exe isn't code-signed, so Windows SmartScreen may warn on first run. Click **More info → Run anyway**.
