@@ -39,15 +39,22 @@ Files that mention no target stay where they are. For `holiday.jpg` that's becau
 
 It works with any file type: documents, photos, videos, music and so on. Only the file name matters.
 
+![Sortr after a scan, listing each file with its matched target, a confidence badge and the destination folder](docs/images/main.png)
+
 ## Using it
 
 1. **Files to sort**: pick the folder of files to sort. Only files directly in that folder are scanned, not its subfolders.
 2. **Target folders**: pick the folder that contains one subfolder per target. Each subfolder's name is the name Sortr searches for.
 3. Click **Scan**. Every file is listed with the target it matched and a badge showing how confident the match is.
 4. Review the list. Untick anything that's wrong, and pick a target for any file marked *Ambiguous*.
-5. Click **Move selected**. If you change your mind, **Undo last move** puts that batch back where it came from.
+5. Optionally, tick **Show unmatched** to sort the files Sortr couldn't place. Type part of a target's name in the file's Target box, then pick the target from the filtered list. Unmatched files stay hidden until you tick the box, so they don't clutter the main list.
+6. Click **Move selected**. If you change your mind, **Undo last move** puts that batch back where it came from.
 
-The app follows Windows' light/dark setting and accent colour.
+![Show unmatched ticked: typing "ar" in an unmatched file's Target box lists Harbor Dental, Mary Sue, Oak Street Garage and Riverside Library](docs/images/unmatched-search.png)
+
+The search ignores capitalisation, accents and separators, so `riverside`, `side lib` and `riversidelibrary` all find **Riverside Library**. Names that start with what you typed are listed first.
+
+The app follows Windows' light/dark setting and accent colour. The version number is shown in the window title.
 
 ## How names are matched
 
@@ -58,7 +65,7 @@ File names are messy, so Sortr ignores capitalisation, accents and separators (`
 | **Strong** | The name appears as separate words | `jane.doe.invoice.pdf`, `Doe_Jane.jpg`, `Jane Doe (2024).docx` | Yes |
 | **Loose** | The name appears run together | `JaneDoe_contract.docx`, `janedoe.png` | Yes; worth a glance |
 | **Ambiguous** | More than one target matched | `Jane Doe and Mary Sue.txt` | No; choose the target from the dropdown |
-| **Unmatched** | No target matched | `holiday.jpg` | Can't be selected; hidden unless *Show unmatched* is ticked |
+| **Unmatched** | No target matched | `holiday.jpg` | No; hidden unless *Show unmatched* is ticked, then type to pick a target |
 
 Some rules reduce false matches:
 - **One-word targets** (e.g. "Nova") must appear as a separate word. `nova_logo.png` matches, but `casanova.pdf` doesn't.
@@ -71,6 +78,7 @@ Some rules reduce false matches:
 - **Double-click** a row to open the file.
 - Right-click a row for **Show in Explorer**.
 - Choosing a target from an ambiguous row's dropdown ticks that row.
+- In an unmatched row's search box: type to filter the targets, use **↑/↓** to move through the list, press **Enter** or click to pick, and press **Esc** to cancel. Picking a target ticks the row. Clearing the box and pressing **Enter** removes the target.
 
 ## Safety
 

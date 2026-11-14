@@ -85,7 +85,8 @@ public sealed partial class MainViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(FilterText))
             return true;
         return item.FileName.Contains(FilterText, StringComparison.OrdinalIgnoreCase)
-            || item.Candidates.Any(c => c.Target.Name.Contains(FilterText, StringComparison.OrdinalIgnoreCase));
+            || item.Candidates.Any(c => c.Target.Name.Contains(FilterText, StringComparison.OrdinalIgnoreCase))
+            || (item.ManualTarget?.Name.Contains(FilterText, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 
     [RelayCommand]
@@ -133,7 +134,7 @@ public sealed partial class MainViewModel : ObservableObject
                 var targets = TargetLoader.Load(targetsFolder);
                 var matcher = new NameMatcher(targets);
                 var rows = FileScanner.Scan(source)
-                    .Select(path => new FileMatchViewModel(path, matcher.Match(Path.GetFileName(path))))
+                    .Select(path => new FileMatchViewModel(path, matcher.Match(Path.GetFileName(path)), targets))
                     .ToList();
                 return (targets, rows);
             });
@@ -163,7 +164,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     private void OnItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(FileMatchViewModel.IsSelected))
+        if (e.PropertyName is nameof(FileMatchViewModel.IsSelected) or nameof(FileMatchViewModel.CanSelect))
             UpdateSummary();
     }
 
@@ -208,11 +209,11 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanMove))]
     private async Task MoveSelectedAsync()
     {
-        var selected = Items.Where(i => i.IsSelected && i.SelectedCandidate is not null).ToList();
+        var selected = Items.Where(i => i.IsSelected && i.EffectiveTarget is not null).ToList();
         if (selected.Count == 0)
             return;
 
-        int targetCount = selected.Select(i => i.SelectedCandidate!.Target).Distinct().Count();
+        int targetCount = selected.Select(i => i.EffectiveTarget!).Distinct().Count();
         if (!_dialogs.Confirm($"Move {selected.Count} file(s) into {targetCount} target folder(s)?", "Confirm move"))
             return;
 
@@ -222,7 +223,7 @@ public sealed partial class MainViewModel : ObservableObject
         StatusText = "Moving files...";
         try
         {
-            var requests = selected.Select(i => new MoveRequest(i.FullPath, i.SelectedCandidate!.Target.FolderPath)).ToList();
+            var requests = selected.Select(i => new MoveRequest(i.FullPath, i.EffectiveTarget!.FolderPath)).ToList();
             var results = await new FileMover(_undoLog).MoveAsync(requests, new Progress<int>(v => ProgressValue = v));
 
             var errors = new List<string>();

@@ -14,6 +14,7 @@ public partial class MainWindow : Window
     public MainWindow(MainViewModel viewModel)
     {
         InitializeComponent();
+        Title = $"Sortr {AppInfo.Version}";
         _viewModel = viewModel;
         DataContext = viewModel;
     }
@@ -22,8 +23,8 @@ public partial class MainWindow : Window
 
     private void ResultsGrid_PreviewKeyDown(object sender, KeyEventArgs e)
     {
-        // Let Space reach a focused ComboBox/CheckBox inside a cell; otherwise toggle the highlighted rows.
-        if (e.Key == Key.Space && e.OriginalSource is not ComboBox and not CheckBox)
+        // Let Space reach a focused ComboBox/CheckBox/TextBox inside a cell; otherwise toggle the highlighted rows.
+        if (e.Key == Key.Space && e.OriginalSource is not ComboBox and not CheckBox and not TextBox)
         {
             _viewModel.ToggleSelection(SelectedRows);
             e.Handled = true;

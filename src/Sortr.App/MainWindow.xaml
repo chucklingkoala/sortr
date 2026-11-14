@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:Sortr.App.ViewModels"
+        xmlns:controls="clr-namespace:Sortr.App.Controls"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
         Title="Sortr" Icon="Assets/Sortr.ico"
@@ -144,10 +145,27 @@
                                                 <DataTrigger Binding="{Binding HasChoice}" Value="True">
                                                     <Setter Property="Visibility" Value="Collapsed" />
                                                 </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsUnmatched}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
+                                <!-- Unmatched files: type part of a target's name to assign one by hand. -->
+                                <controls:TargetPicker Targets="{Binding AllTargets}"
+                                                       SelectedTarget="{Binding ManualTarget, UpdateSourceTrigger=PropertyChanged}">
+                                    <controls:TargetPicker.Style>
+                                        <Style TargetType="controls:TargetPicker">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsUnmatched}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </controls:TargetPicker.Style>
+                                </controls:TargetPicker>
                             </Grid>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
