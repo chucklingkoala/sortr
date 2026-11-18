@@ -483,3 +483,7 @@ $RECYCLE.BIN/
 
 # Sortr: keep the single-file publish profile (the README's build instructions use it)
 !src/Sortr.App/Properties/PublishProfiles/SingleFile.pubxml
+
+# Rust / Tauri
+target/
+src-tauri/gen/

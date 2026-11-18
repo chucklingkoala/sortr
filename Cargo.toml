@@ -1,0 +1,18 @@
+[workspace]
+members = ["src-tauri"]
+resolver = "3"
+
+[workspace.package]
+# Release builds override this from the git tag (see .github/workflows/release.yml).
+version = "2.0.0"
+edition = "2024"
+license = "MIT"
+
+# Tuned for a small exe: optimise for size, link-time optimisation across all crates,
+# no unwinding tables and no symbols.
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
