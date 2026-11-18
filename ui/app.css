@@ -1,0 +1,162 @@
+/* Main window layout. */
+
+.app {
+  height: 100%;
+  padding: 16px;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+
+/* ---- Folder pickers ---- */
+
+.folders {
+  padding: 14px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+}
+.folders label { font-weight: 600; margin-right: 4px; }
+.folders .scan { grid-column: 4; grid-row: 1 / 3; align-self: stretch; margin-left: 8px; min-width: 110px; }
+
+/* ---- Toolbar ---- */
+
+.toolbar {
+  margin: 12px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.toolbar .show-unmatched { margin-left: 10px; }
+.toolbar #filter { margin-left: auto; width: 280px; }
+
+/* ---- Results grid ---- */
+
+.grid {
+  --cols: 44px minmax(0, 3fr) minmax(0, 2fr) 110px minmax(0, 3fr) minmax(0, 2fr);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.grid-header {
+  display: grid;
+  grid-template-columns: var(--cols);
+  border-bottom: 1px solid var(--divider);
+  flex: none;
+  padding-right: 12px; /* lines up with the body's scrollbar */
+}
+.grid-header > div {
+  padding: 6px 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 1px solid var(--divider);
+}
+.grid-header > div:first-child { border-left: 0; }
+.grid-header > div:hover { background: var(--subtle-hover); }
+.grid-header > div.sorted-asc::after { content: " ▲"; font-size: 9px; color: var(--text-secondary); }
+.grid-header > div.sorted-desc::after { content: " ▼"; font-size: 9px; color: var(--text-secondary); }
+
+.grid-body {
+  position: relative;
+  flex: 1;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  outline: none;
+}
+.grid-spacer { width: 1px; }
+
+.row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 38px;
+  display: grid;
+  grid-template-columns: var(--cols);
+  align-items: center;
+  border-bottom: 1px solid var(--divider);
+}
+.row:hover { background: var(--subtle-hover); }
+.row.highlighted { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.grid-body:focus .row.current { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 70%, transparent); }
+
+.cell {
+  padding: 0 10px;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cell.check { display: flex; justify-content: center; padding: 0; }
+.cell.target { padding: 0 6px; overflow: visible; }
+.cell.target > span { display: block; padding: 0 4px; overflow: hidden; text-overflow: ellipsis; }
+.cell.target > select, .cell.target > input { width: 100%; min-height: 30px; height: 30px; }
+.cell.destination { color: var(--text-secondary); }
+.cell.status { color: var(--critical); }
+
+.badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 9px;
+  color: #ffffff;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+}
+.badge.strong { background: var(--badge-strong); }
+.badge.loose { background: var(--badge-loose); }
+.badge.ambiguous { background: var(--badge-ambiguous); }
+.badge.unmatched { background: var(--badge-unmatched); }
+
+/* ---- Target search popup ---- */
+
+.picker-popup {
+  position: fixed;
+  z-index: 10;
+  max-width: 480px;
+  padding: 2px;
+  background: var(--popup);
+  border: 1px solid var(--popup-stroke);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+}
+.picker-list { max-height: 300px; overflow-y: auto; }
+.picker-option {
+  position: relative;
+  padding: 6px 12px;
+  margin: 2px;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.picker-option:hover { background: var(--subtle-hover); }
+.picker-option.highlighted { background: var(--subtle-hover); }
+.picker-option.highlighted::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 25%;
+  height: 50%;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.picker-empty { padding: 8px 10px; }
+
+/* ---- Footer ---- */
+
+footer {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.footer-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.summary { font-weight: 600; min-height: 20px; }
+.status { margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#progress { margin: 6px 24px 0 0; width: auto; }
+footer .move { min-width: 140px; }

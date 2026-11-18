@@ -3,8 +3,66 @@
 <head>
   <meta charset="utf-8">
   <title>Sortr</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="app.css">
 </head>
 <body>
-  <p>Sortr 2: the main window arrives in Phase 3.</p>
+  <div class="app">
+    <!-- Folder pickers -->
+    <section class="card folders">
+      <label for="source">Files to sort</label>
+      <input id="source" type="text" spellcheck="false" autocomplete="off">
+      <button id="browse-source" type="button">Browse…</button>
+
+      <label for="targets">Target folders</label>
+      <input id="targets" type="text" spellcheck="false" autocomplete="off">
+      <button id="browse-targets" type="button">Browse…</button>
+
+      <button id="scan" type="button" class="accent scan">Scan</button>
+    </section>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button id="select-all" type="button">Select all</button>
+      <button id="select-none" type="button">Select none</button>
+      <label class="check show-unmatched"><input id="show-unmatched" type="checkbox"> Show unmatched</label>
+      <input id="filter" type="text" placeholder="Filter by file or target…" spellcheck="false" autocomplete="off">
+    </div>
+
+    <!-- Results -->
+    <div class="grid card">
+      <div class="grid-header" id="grid-header">
+        <div data-sort="checked"></div>
+        <div data-sort="file">File</div>
+        <div data-sort="target">Target</div>
+        <div data-sort="kind">Match</div>
+        <div data-sort="destination">Destination</div>
+        <div data-sort="status">Status</div>
+      </div>
+      <div class="grid-body" id="grid-body" tabindex="0" role="grid" aria-label="Files">
+        <div class="grid-spacer" id="grid-spacer"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-text">
+        <div id="summary" class="summary"></div>
+        <div id="status" class="muted status"></div>
+        <progress id="progress" value="0" max="1" hidden></progress>
+      </div>
+      <button id="undo" type="button">Undo last move</button>
+      <button id="move" type="button" class="accent move">Move selected</button>
+    </footer>
+  </div>
+
+  <!-- Type-to-search list for unmatched rows; one shared popup, positioned under the focused search box. -->
+  <div id="picker-popup" class="picker-popup" hidden>
+    <div id="picker-list" class="picker-list"></div>
+    <div id="picker-empty" class="muted picker-empty" hidden>No matching targets</div>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

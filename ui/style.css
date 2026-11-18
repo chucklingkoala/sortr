@@ -1,0 +1,177 @@
+/* Sortr's look: close to WPF's Fluent theme, following Windows' light/dark setting and accent colour. */
+
+:root {
+  color-scheme: light dark;
+  --font: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --mono: "Cascadia Mono", Consolas, "Courier New", monospace;
+
+  --bg: #f3f3f3;
+  --card: #fbfbfb;
+  --card-stroke: #e5e5e5;
+  --text: #1b1b1b;
+  --text-secondary: #616161;
+  --text-disabled: #a0a0a0;
+  --control: #fdfdfd;
+  --control-hover: #f6f6f6;
+  --control-pressed: #f0f0f0;
+  --control-stroke: #e5e5e5;
+  --control-stroke-bottom: #cccccc;
+  --control-disabled: #f5f5f5;
+  --subtle-hover: rgba(0, 0, 0, 0.04);
+  --divider: #ebebeb;
+  --critical: #c42b1c;
+  --popup: #f9f9f9;
+  --popup-stroke: #d6d6d6;
+  --shadow: 0 8px 16px rgba(0, 0, 0, 0.14);
+
+  /* Overwritten from Windows' accent colour at startup (see common.js). */
+  --accent-light-theme: #005fb8;
+  --accent-dark-theme: #60cdff;
+  --accent: var(--accent-light-theme);
+  --on-accent: #ffffff;
+
+  --badge-strong: #2e7d32;
+  --badge-loose: #b26a00;
+  --badge-ambiguous: #8e24aa;
+  --badge-unmatched: #6b7280;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #202020;
+    --card: #2b2b2b;
+    --card-stroke: #1d1d1d;
+    --text: #ffffff;
+    --text-secondary: #c5c5c5;
+    --text-disabled: #787878;
+    --control: #2d2d2d;
+    --control-hover: #323232;
+    --control-pressed: #272727;
+    --control-stroke: #3a3a3a;
+    --control-stroke-bottom: #454545;
+    --control-disabled: #2a2a2a;
+    --subtle-hover: rgba(255, 255, 255, 0.06);
+    --divider: #383838;
+    --critical: #ff99a4;
+    --popup: #2c2c2c;
+    --popup-stroke: #464646;
+    --shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    --accent: var(--accent-dark-theme);
+    --on-accent: #000000;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/20px var(--font);
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+
+input[type="text"], textarea, pre { -webkit-user-select: text; user-select: text; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-stroke);
+  border-radius: 8px;
+}
+
+.muted { color: var(--text-secondary); }
+
+/* ---- Controls ---- */
+
+button, input[type="text"], select {
+  font: inherit;
+  color: var(--text);
+  background: var(--control);
+  border: 1px solid var(--control-stroke);
+  border-bottom-color: var(--control-stroke-bottom);
+  border-radius: 4px;
+  min-height: 32px;
+  outline: none;
+}
+
+button {
+  padding: 5px 11px 6px;
+  white-space: nowrap;
+}
+button:hover:not(:disabled) { background: var(--control-hover); }
+button:active:not(:disabled) { background: var(--control-pressed); color: var(--text-secondary); }
+button:disabled { background: var(--control-disabled); color: var(--text-disabled); border-color: var(--control-stroke); }
+
+button.accent {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: transparent;
+}
+button.accent:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 90%, var(--bg)); }
+button.accent:active:not(:disabled) { background: color-mix(in srgb, var(--accent) 80%, var(--bg)); color: var(--on-accent); }
+button.accent:disabled { background: var(--control-disabled); color: var(--text-disabled); }
+
+button:focus-visible, select:focus-visible, input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 1px;
+}
+
+input[type="text"] {
+  padding: 5px 10px 6px;
+  min-width: 0;
+}
+input[type="text"]:hover { background: var(--control-hover); }
+input[type="text"]:focus {
+  background: var(--bg);
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 5px;
+}
+input[type="text"]::placeholder { color: var(--text-secondary); }
+
+select { padding: 0 8px; }
+
+input[type="checkbox"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1px solid var(--text-secondary);
+  border-radius: 4px;
+  background: var(--control);
+  display: inline-grid;
+  place-content: center;
+  flex: none;
+}
+input[type="checkbox"]:checked { background: var(--accent); border-color: var(--accent); }
+input[type="checkbox"]:checked::after {
+  content: "";
+  width: 10px;
+  height: 5px;
+  border: 2px solid var(--on-accent);
+  border-top: 0;
+  border-right: 0;
+  transform: translateY(-1px) rotate(-45deg);
+}
+input[type="checkbox"]:disabled { opacity: 0.4; }
+
+label.check { display: inline-flex; align-items: center; gap: 8px; }
+
+progress {
+  appearance: none;
+  height: 4px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--divider);
+  overflow: hidden;
+}
+progress::-webkit-progress-bar { background: var(--divider); }
+progress::-webkit-progress-value { background: var(--accent); border-radius: 2px; }
+
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--text-secondary) 45%, transparent); border-radius: 6px; border: 3px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--text-secondary); }
+::-webkit-scrollbar-corner { background: transparent; }
