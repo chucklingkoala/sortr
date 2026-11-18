@@ -10,7 +10,8 @@ use sortr_core::{
     UndoLog, UndoResult, paths, preview, scan, search,
 };
 use tauri::ipc::{Channel, Response};
-use tauri::{State, WebviewWindow};
+use tauri::{AppHandle, Manager, PhysicalPosition, State, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
+use windows::Win32::UI::WindowsAndMessaging::{SW_HIDE, SW_SHOWNOACTIVATE, ShowWindow};
 
 use crate::{imaging, shell, theme};
 
@@ -224,4 +225,57 @@ pub async fn thumbnail(path: String, size: i32) -> CommandResult<Response> {
 #[tauri::command]
 pub async fn accent_colors() -> CommandResult<theme::AccentColors> {
     sta(theme::accent_colors).await?.map_err(|e| e.message())
+}
+
+/// Shows the preview window without taking focus from the main window, creating it on first use.
+#[tauri::command]
+pub async fn show_preview(app: AppHandle) -> CommandResult<()> {
+    let preview = match app.get_webview_window("preview") {
+        Some(window) => window,
+        None => create_preview(&app).map_err(|e| e.to_string())?,
+    };
+    // Showing without activating keeps the keyboard in the file list, so ↑/↓ step through files.
+    if let Ok(hwnd) = preview.hwnd() {
+        unsafe {
+            let _ = ShowWindow(hwnd, SW_SHOWNOACTIVATE);
+        }
+    }
+    Ok(())
+}
+
+fn create_preview(app: &AppHandle) -> tauri::Result<WebviewWindow> {
+    let main = app.get_webview_window("main").ok_or(tauri::Error::WindowNotFound)?;
+    let preview = WebviewWindowBuilder::new(app, "preview", WebviewUrl::App("preview.html".into()))
+        .title("Preview")
+        .inner_size(760.0, 600.0)
+        .min_inner_size(360.0, 300.0)
+        .skip_taskbar(true)
+        .focused(false)
+        .visible(false)
+        .owner(&main)?
+        .data_directory(paths::webview_directory())
+        .build()?;
+    // Centre it over the main window the first time; after that it keeps wherever the user puts it.
+    if let (Ok(pos), Ok(size), Ok(own)) = (main.outer_position(), main.outer_size(), preview.outer_size()) {
+        let x = pos.x + (size.width as i32 - own.width as i32) / 2;
+        let y = pos.y + (size.height as i32 - own.height as i32) / 2;
+        let _ = preview.set_position(PhysicalPosition::new(x, y));
+    }
+    Ok(preview)
+}
+
+/// Hides the preview window (keeping it for next time) and gives the main window the keyboard back.
+#[tauri::command]
+pub async fn hide_preview(app: AppHandle) -> CommandResult<()> {
+    // Shown with a raw ShowWindow (see show_preview), so hidden the same way: Tauri's hide() would think it's
+    // already hidden and do nothing.
+    if let Some(Ok(hwnd)) = app.get_webview_window("preview").map(|w| w.hwnd()) {
+        unsafe {
+            let _ = ShowWindow(hwnd, SW_HIDE);
+        }
+    }
+    if let Some(main) = app.get_webview_window("main") {
+        let _ = main.set_focus();
+    }
+    Ok(())
 }

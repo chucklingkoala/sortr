@@ -6,7 +6,7 @@ mod imaging;
 mod shell;
 mod theme;
 
-use tauri::{WebviewUrl, WebviewWindowBuilder};
+use tauri::{Emitter, Manager, WebviewUrl, WebviewWindowBuilder, WindowEvent};
 
 fn main() {
     // Sortr's UI runs in WebView2. It ships with Windows 11 and updated Windows 10, but say so plainly if it's missing.
@@ -40,7 +40,19 @@ fn main() {
             commands::decode_image,
             commands::thumbnail,
             commands::accent_colors,
+            commands::show_preview,
+            commands::hide_preview,
         ])
+        .on_window_event(|window, event| match (window.label(), event) {
+            // The preview's X hides it so its size and position are kept; the main window decides what that means.
+            ("preview", WindowEvent::CloseRequested { api, .. }) => {
+                api.prevent_close();
+                let _ = window.emit("preview:close-requested", ());
+            }
+            // The hidden preview window would otherwise keep the app running.
+            ("main", WindowEvent::Destroyed) => window.app_handle().exit(0),
+            _ => {}
+        })
         .setup(|app| {
             let title = format!("Sortr {}", app.package_info().version);
             WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))

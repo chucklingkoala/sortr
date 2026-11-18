@@ -3,5 +3,5 @@
   "identifier": "default",
   "description": "Permissions for Sortr's main and preview windows.",
   "windows": ["main", "preview"],
-  "permissions": ["core:default"]
+  "permissions": ["core:default", "core:window:allow-set-title"]
 }

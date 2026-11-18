@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Preview</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="preview.css">
+</head>
+<body>
+  <div class="preview">
+    <!-- Header: name, facts, open button -->
+    <header>
+      <div class="facts">
+        <div id="file-name" class="file-name">No file selected</div>
+        <div id="info" class="muted info"></div>
+      </div>
+      <button id="open" type="button" title="Open the file in its default app" disabled>Open</button>
+    </header>
+
+    <!-- Content -->
+    <main class="card content">
+      <img id="image" alt="" hidden>
+      <canvas id="canvas" hidden></canvas>
+      <video id="media" preload="metadata" hidden></video>
+      <div id="audio-glyph" class="icon audio-glyph muted" hidden>&#xE8D6;</div>
+      <pre id="text" tabindex="0" hidden></pre>
+      <div id="message" class="muted message" hidden></div>
+    </main>
+
+    <!-- Footer: media controls, or a note about the content -->
+    <footer>
+      <div id="media-controls" class="media-controls" hidden>
+        <button id="play" type="button" class="icon" title="Play">&#xE768;</button>
+        <input id="position" type="range" min="0" max="1" step="any" value="0" aria-label="Position">
+        <span id="time" class="muted time"></span>
+        <button id="mute" type="button" class="icon" title="Mute">&#xE767;</button>
+      </div>
+      <div id="footer-text" class="muted footer-text" hidden></div>
+    </footer>
+  </div>
+
+  <script src="common.js"></script>
+  <script src="preview.js"></script>
+</body>
+</html>

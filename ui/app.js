@@ -111,7 +111,10 @@ function setView(view) {
   for (const item of [...state.highlighted]) {
     if (!state.index.has(item)) state.highlighted.delete(item);
   }
-  if (state.current && !state.index.has(state.current)) state.current = null;
+  if (state.current && !state.index.has(state.current)) {
+    state.current = null;
+    syncPreview();
+  }
   if (state.anchor && !state.index.has(state.anchor)) state.anchor = null;
   renderAll();
 }
@@ -261,12 +264,14 @@ new ResizeObserver(() => {
 
 function setHighlight(items, current, anchor = current) {
   const before = new Set([...state.highlighted, state.current]);
+  const currentChanged = state.current !== current;
   state.highlighted = new Set(items);
   state.current = current;
   state.anchor = anchor;
   for (const item of new Set([...before, ...state.highlighted, current])) {
     if (item) updateRow(item);
   }
+  if (currentChanged) syncPreview();
 }
 
 function highlightRange(from, to) {
@@ -350,6 +355,15 @@ ui.body.addEventListener("keydown", (e) => {
     case "Home": moveCaret(0, { ...mods, absolute: 0 }); break;
     case "End": moveCaret(0, { ...mods, absolute: state.view.length - 1 }); break;
     case " ": toggleChecked(state.highlighted); break;
+    case "p":
+    case "P":
+      if (e.ctrlKey || e.altKey || e.shiftKey) return;
+      togglePreview();
+      break;
+    case "Escape":
+      if (!preview.open) return;
+      hidePreview();
+      break;
     case "a":
     case "A":
       if (!e.ctrlKey) return;
@@ -378,6 +392,7 @@ async function showRowMenu() {
   if (!item) return;
   const menu = await tauri.menu.Menu.new({
     items: [
+      { id: "preview", text: "Preview (P)", action: showPreview },
       { id: "open", text: "Open file", action: () => openFile(item) },
       { id: "explorer", text: "Show in Explorer", action: () => invoke("show_in_explorer", { path: item.path }) },
       { item: "Separator" },
@@ -394,6 +409,61 @@ async function openFile(item) {
     await messageBox("warning", "Could not open file", String(err));
   }
 }
+
+// ---- Preview window ----
+
+const preview = { open: false, clearRequest: 0 };
+
+/** Tells the preview window which file to show: the highlighted row's, or none. */
+function syncPreview() {
+  if (preview.open) tauri.event.emit("preview:show", { path: state.current?.path ?? null });
+}
+
+async function showPreview() {
+  preview.open = true;
+  await invoke("show_preview");
+  syncPreview();
+}
+
+async function hidePreview() {
+  if (!preview.open) return;
+  preview.open = false;
+  await clearPreview();
+  await invoke("hide_preview");
+  ui.body.focus({ preventScroll: true });
+}
+
+function togglePreview() {
+  if (preview.open) hidePreview();
+  else showPreview();
+}
+
+/**
+ * Stops any playing media and makes the preview let go of its file, waiting until it has. A playing video holds its
+ * file open, which would make moving it fail.
+ */
+function clearPreview() {
+  const id = ++preview.clearRequest;
+  return new Promise((resolve) => {
+    let unlisten = null;
+    const done = () => {
+      clearTimeout(timer);
+      unlisten?.();
+      resolve();
+    };
+    const timer = setTimeout(done, 1500); // no preview window yet, or it's not responding
+    tauri.event.listen("preview:cleared", (e) => {
+      if (e.payload === id) done();
+    }).then((stop) => {
+      unlisten = stop;
+      tauri.event.emit("preview:clear", id);
+    });
+  });
+}
+
+tauri.event.listen("preview:ready", syncPreview);
+tauri.event.listen("preview:navigate", (e) => moveCaret(e.payload));
+tauri.event.listen("preview:close-requested", hidePreview);
 
 // ---- Type-to-search target picker (unmatched rows) ----
 
@@ -572,10 +642,12 @@ function updateSummary() {
   updateButtons();
 }
 
-function setBusy(busy) {
+async function setBusy(busy) {
   state.busy = busy;
   ui.progress.hidden = !busy;
   updateButtons();
+  if (busy && preview.open) await clearPreview();
+  else if (!busy) syncPreview();
 }
 
 async function refreshCanUndo() {
@@ -619,7 +691,7 @@ async function scan() {
     return;
   }
 
-  setBusy(true);
+  await setBusy(true);
   setProgress(0, 1);
   setStatus("Scanning...");
   try {
@@ -651,7 +723,7 @@ async function moveSelected() {
     return;
   }
 
-  setBusy(true);
+  await setBusy(true);
   setProgress(0, selected.length);
   setStatus("Moving files...");
   try {
@@ -712,7 +784,7 @@ async function undoLastMove() {
     return;
   }
 
-  setBusy(true);
+  await setBusy(true);
   setStatus("Undoing last move...");
   let result;
   try {
