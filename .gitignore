@@ -481,8 +481,6 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
-# Sortr: keep the single-file publish profile (the README's build instructions use it)
-!src/Sortr.App/Properties/PublishProfiles/SingleFile.pubxml
 
 # Rust / Tauri
 target/

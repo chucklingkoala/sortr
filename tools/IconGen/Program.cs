@@ -5,7 +5,7 @@ using System.Drawing.Imaging;
 // Draws the Sortr icon (a white arrow dropping into a folder on a blue tile)
 // at each standard size and packs the PNG frames into a .ico file.
 
-var outDir = args.Length > 0 ? args[0] : Path.Combine("src", "Sortr.App", "Assets");
+var outDir = args.Length > 0 ? args[0] : Path.Combine("src-tauri", "icons");
 Directory.CreateDirectory(outDir);
 
 int[] sizes = [16, 20, 24, 32, 40, 48, 64, 128, 256];

@@ -145,7 +145,7 @@ mod decode_tests {
     use super::*;
     use crate::shell::on_sta_thread;
 
-    const ICON: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/icons/icon.png");
+    const ICON: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/icons/icon-256.png");
 
     #[test]
     fn decodes_png_at_full_size() {

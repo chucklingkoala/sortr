@@ -147,7 +147,7 @@ mod tests {
 
     #[test]
     fn thumbnail_of_a_real_file_has_pixels() {
-        let icon = concat!(env!("CARGO_MANIFEST_DIR"), "/icons/icon.png");
+        let icon = concat!(env!("CARGO_MANIFEST_DIR"), "/icons/icon-256.png");
         let pixels = on_sta_thread(move || thumbnail(icon, 64)).expect("thumbnail");
         assert!(pixels.width > 0 && pixels.width <= 64 && pixels.height <= 64);
         assert_eq!(pixels.rgba.len(), (pixels.width * pixels.height * 4) as usize);

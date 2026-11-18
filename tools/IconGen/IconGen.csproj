@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Regenerates src/Sortr.App/Assets/Sortr.ico. Not part of Sortr.slnx.
+  <!-- Regenerates src-tauri/icons/Sortr.ico and icon-256.png. Not part of the Cargo build.
        Run from the repo root with: dotnet run (project) tools/IconGen   (see README) -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>

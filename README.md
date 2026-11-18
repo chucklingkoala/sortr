@@ -1,4 +1,4 @@
-<img src="src/Sortr.App/Assets/icon-256.png" width="72" align="right" alt="" />
+<img src="src-tauri/icons/icon-256.png" width="72" align="right" alt="" />
 
 # Sortr
 
@@ -135,10 +135,10 @@ The tag sets the version number stamped into the exe. The workflow is in [.githu
 
 ### App icon
 
-The icon is drawn in code by `tools/IconGen`. After editing it, regenerate the icon with this command. The optional second argument writes a preview sheet.
+The icon is drawn in code by `tools/IconGen`, a small .NET program (it needs the [.NET 10 SDK](https://dotnet.microsoft.com/download); building Sortr doesn't). After editing it, regenerate the icon with this command. The optional second argument writes a preview sheet.
 
 ```
-dotnet run --project tools/IconGen -- src/Sortr.App/Assets [preview.png]
+dotnet run --project tools/IconGen -- src-tauri/icons [preview.png]
 ```
 
 ## Project layout
@@ -147,7 +147,6 @@ dotnet run --project tools/IconGen -- src/Sortr.App/Assets [preview.png]
 - `src-tauri`: the Windows app (Tauri 2): the commands the UI calls, the preview window, and the native pieces (folder picker, message boxes, shell thumbnails, image decoding with Windows' codecs).
 - `ui`: the main and preview windows' HTML, CSS and JavaScript.
 - `tools/IconGen`: the icon generator (.NET; only needed to redraw the icon).
-- `src`, `tests`: the Sortr 1.x .NET app, kept until the Rust version is verified.
 
 ## License
 

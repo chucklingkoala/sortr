@@ -6,7 +6,7 @@
 
 ## Status
 
-Phases 0–5 are done on the `dev` branch, one commit per phase. The release exe is **3.5 MB** (1.x: about 60 MB).
+All phases are done on the `dev` branch, one commit per phase, and the .NET app has been removed. The release exe is **3.5 MB** (1.x: about 60 MB).
 
 Where the implementation differs from the plan below:
 
@@ -142,14 +142,17 @@ Folder pickers and the confirm/error boxes use `tauri-plugin-dialog`. The window
 
 Remove `src/Sortr.App`, `src/Sortr.Core`, `tests/`, `Sortr.slnx` and the .NET `.gitignore` entries only after a manual run through the parity checklist below. Until then the .NET app keeps building alongside the new one.
 
-## Parity checklist (manual, before cutover)
+## Parity checklist
 
-- [ ] Strong, Loose, Ambiguous and Unmatched rows, with the right default ticks.
-- [ ] Longest name wins, and the rules for one-word and short names.
-- [ ] The ambiguous dropdown ticks the row.
-- [ ] The unmatched picker filters, works with ↑/↓/Enter/Esc, and clearing it unticks the row.
-- [ ] Move confirms first, renames clashes to `name (1).ext`, works across drives and logs each move as it happens.
-- [ ] Undo refuses to overwrite, keeps any failed files in the log and rescans afterwards.
-- [ ] Undo restores a batch moved by the .NET version.
-- [ ] Every preview type works, ↑/↓ steps through the list, and the preview never blocks a move.
-- [ ] Light/dark switches live, the accent colour is used, the version shows in the title and settings are kept between runs.
+Checked before the cutover. "Automated" means unit tests; "driven" means the real exe was operated through WebView2's DevTools protocol, with native dialogs answered by a script.
+
+- [x] Strong, Loose, Ambiguous and Unmatched rows, with the right default ticks. *(automated + driven)*
+- [x] Longest name wins, and the rules for one-word and short names. *(automated)*
+- [x] The ambiguous dropdown ticks the row. *(driven)*
+- [x] The unmatched picker filters, works with ↑/↓/Enter/Esc, and clearing it unticks the row. *(driven)*
+- [x] Move confirms first, renames clashes to `name (1).ext`, works across drives and logs each move as it happens. *(automated + driven)*
+- [x] Undo refuses to overwrite, keeps any failed files in the log and rescans afterwards. *(automated + driven)*
+- [x] Undo restores a batch moved by the .NET version. *(driven: 1.x's `FileMover` moved the files, Sortr 2's Undo restored them)*
+- [x] Every preview type works, ↑/↓ steps through the list, and the preview never blocks a move. *(driven)*
+- [x] Light and dark themes render, the accent colour is used, the version shows in the title and settings are kept between runs. *(driven; the theme follows Windows through the `prefers-color-scheme` media query, so live switching wasn't tested separately)*
+- [ ] A hands-on pass by a person, including mouse feel, real photos and videos, and HEIC with the codec installed.
