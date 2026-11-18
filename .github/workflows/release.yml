@@ -1,8 +1,8 @@
 name: Release
 
 # Push a version tag to build Sortr.exe and publish it as a GitHub Release:
-#   git tag v1.2.3
-#   git push origin v1.2.3
+#   git tag v2.0.0
+#   git push origin v2.0.0
 on:
   push:
     tags: ['v*']
@@ -14,31 +14,43 @@ jobs:
   release:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
+      - uses: dtolnay/rust-toolchain@stable
 
-      - name: Test
-        run: dotnet test -c Release
+      - uses: Swatinem/rust-cache@v2
 
-      - name: Publish single-file exe
+      - name: Set version from tag
         shell: pwsh
         run: |
           $version = '${{ github.ref_name }}'.TrimStart('v')
-          dotnet publish src/Sortr.App -p:PublishProfile=SingleFile -p:Version=$version
+          # The workspace version is the only line in the root Cargo.toml that starts with "version =".
+          (Get-Content Cargo.toml) -replace '^version = ".*"$', "version = `"$version`"" | Set-Content Cargo.toml
+
+      - name: Test
+        run: cargo test --workspace
+
+      - name: Build Sortr.exe
+        shell: pwsh
+        run: |
+          cargo build --release -p sortr
+          New-Item -ItemType Directory -Force publish | Out-Null
+          Copy-Item target/release/Sortr.exe publish/Sortr.exe
           $hash = (Get-FileHash publish/Sortr.exe -Algorithm SHA256).Hash.ToLower()
           "$hash  Sortr.exe" | Set-Content publish/Sortr.exe.sha256 -NoNewline
+          $size = (Get-Item publish/Sortr.exe).Length / 1MB
+          "Sortr.exe: {0:N2} MB" -f $size | Tee-Object -Append -FilePath $env:GITHUB_STEP_SUMMARY
 
       - name: Create release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             publish/Sortr.exe
             publish/Sortr.exe.sha256
           generate_release_notes: true
           body: |
-            Download **Sortr.exe** below and run it. Nothing to install: it runs on 64-bit Windows 10/11 without .NET.
+            Download **Sortr.exe** below and run it. Nothing to install: it runs on 64-bit Windows 10/11.
+
+            Sortr uses Microsoft Edge WebView2, which comes with Windows 11 and updated Windows 10. If a PC doesn't have it, Sortr says so and links to the download.
 
             The exe isn't code-signed, so Windows SmartScreen may warn on first run. Click **More info → Run anyway**.

@@ -4,6 +4,20 @@
 
 **Approach:** a Rust core library plus a Tauri 2 app. The UI is plain HTML/CSS/JS shown in WebView2, the browser component built into Windows. No Node/npm toolchain is needed.
 
+## Status
+
+Phases 0–5 are done on the `dev` branch, one commit per phase. The release exe is **3.5 MB** (1.x: about 60 MB).
+
+Where the implementation differs from the plan below:
+
+- **No Tauri CLI.** `cargo build --release` produces the exe, because the app crate turns on Tauri's `custom-protocol` feature by default.
+- **No dialog plugin.** The folder picker (`IFileOpenDialog`) and message boxes (`MessageBoxW`) are called directly. They're the same native dialogs 1.x used, and this avoids the plugin and the file-system plugin it depends on.
+- **Raw pixels instead of PNG.** WIC-decoded images and shell thumbnails go to the page as RGBA and are drawn on a canvas, so no image encoder is needed.
+- **Animated GIFs play.** 1.x showed only the first frame.
+- **WMV and AVI fall back to the thumbnail.** WebView2 can't play them, as expected; MP4, MOV, WebM, MP3, WAV and FLAC play.
+- **Unicode check.** The Rust and .NET tokenizers were compared over every BMP character. They differ only on characters added in newer Unicode versions than .NET's tables. .NET also throws on U+FFFE, which the Rust version handles.
+- **Testing.** Besides the unit tests, the main and preview windows were driven end to end through WebView2's DevTools protocol: scanning, the picker, keyboard use, moving (including a file whose video was playing in the preview), undo, every preview type and both themes.
+
 ## Why Tauri
 
 Most of the 60 MB is the bundled .NET runtime and WPF. Sortr's own code is small: about 500 lines of logic in `Sortr.Core` and 1,700 lines of UI. Any Rust toolkit removes the runtime, so the real choice is which one can still do the hard parts:

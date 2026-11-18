@@ -4,7 +4,7 @@
 
 **Sortr moves files into the right folders by reading their names.**
 
-**[⬇ Download Sortr.exe](https://github.com/chucklingkoala/sortr/releases/latest)**: a single file with nothing to install. It runs on 64-bit Windows 10/11.
+**[⬇ Download Sortr.exe](https://github.com/chucklingkoala/sortr/releases/latest)**: a single file of about 3.5 MB with nothing to install. It runs on 64-bit Windows 10/11.
 
 You have a folder full of loose files whose names mention who or what they belong to:
 
@@ -85,8 +85,8 @@ Some rules reduce false matches:
 
 | File | Preview |
 |---|---|
-| Images (JPG, PNG, GIF, BMP, TIFF, ICO; WebP and HEIC if Windows has the codec) | The picture, upright even if a phone saved it sideways. Animated GIFs show their first frame. |
-| Video and audio (MP4, MOV, WMV, AVI, MP3, WAV, …) | A player with play/pause, seek and mute. Videos start playing muted; audio waits for **Play**. Formats depend on the codecs Windows has; anything it can't play falls back to the thumbnail. |
+| Images (JPG, PNG, GIF, BMP, TIFF, ICO, WebP; HEIC and JPEG XR if Windows has the codec) | The picture, upright even if a phone saved it sideways. Animated GIFs play. |
+| Video and audio (MP4, MOV, WebM, MP3, WAV, FLAC, …) | A player with play/pause, seek and mute. Videos start playing muted; audio waits for **Play**. Formats are the ones Microsoft Edge can play; anything else (such as WMV and AVI) falls back to the thumbnail. |
 | Text (TXT, MD, LOG, CSV, JSON, XML, code, and files with no extension that contain text) | The first 256 KB. |
 | Anything else (PDF, Office, archives, …) | The thumbnail or icon Explorer would show. Click **Open** to view it in its default app. |
 
@@ -101,23 +101,24 @@ The preview never stops a file from being moved: a playing video is stopped befo
 
 ## Building
 
-Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download).
+Requires [Rust](https://rustup.rs/) (stable). There is no Node.js or other front-end toolchain: the UI in `ui/` is plain HTML, CSS and JavaScript, embedded into the exe as it is.
 
 ```
-dotnet test
-dotnet run --project src/Sortr.App
+cargo test --workspace
+cargo run -p sortr
 ```
+
+A debug build (`cargo run`) also opens a console window for log output.
 
 ### Single executable
 
 ```
-dotnet publish src/Sortr.App -p:PublishProfile=SingleFile
+cargo build --release
 ```
 
-This produces `publish/Sortr.exe`, a single file of about 60 MB. It runs on any 64-bit Windows 10/11 PC without .NET installed. The settings live in [SingleFile.pubxml](src/Sortr.App/Properties/PublishProfiles/SingleFile.pubxml):
-- The .NET runtime is bundled into the exe.
-- The exe is compressed.
-- WPF's native DLLs are bundled too. They're unpacked to a temp folder on first launch.
+This produces `target/release/Sortr.exe`, a single file of about 3.5 MB. It runs on any 64-bit Windows 10/11 PC. Settings that keep it small are in the root [Cargo.toml](Cargo.toml): optimise for size, link-time optimisation, no unwinding, no symbols.
+
+The UI runs in Microsoft Edge WebView2, which comes with Windows 11 and updated Windows 10. It isn't bundled into the exe. If it's missing, Sortr shows a message with the download link instead of starting.
 
 The exe isn't code-signed, so Windows SmartScreen may warn on first run. Click *More info → Run anyway*.
 
@@ -126,8 +127,8 @@ The exe isn't code-signed, so Windows SmartScreen may warn on first run. Click *
 Push a version tag. GitHub Actions then runs the tests, builds `Sortr.exe` and publishes it as a GitHub Release, along with a SHA-256 checksum:
 
 ```
-git tag v1.2.3
-git push origin v1.2.3
+git tag v2.0.0
+git push origin v2.0.0
 ```
 
 The tag sets the version number stamped into the exe. The workflow is in [.github/workflows/release.yml](.github/workflows/release.yml).
@@ -142,10 +143,11 @@ dotnet run --project tools/IconGen -- src/Sortr.App/Assets [preview.png]
 
 ## Project layout
 
-- `src/Sortr.Core`: the matching, scanning, moving, undo and settings logic (no UI).
-- `src/Sortr.App`: the Windows app (WPF, MVVM via CommunityToolkit.Mvvm, Fluent theme).
-- `tests/Sortr.Tests`: xUnit tests.
-- `tools/IconGen`: the icon generator (not part of the solution build).
+- `crates/sortr-core`: the matching, scanning, moving, undo and settings logic (no UI), with its tests.
+- `src-tauri`: the Windows app (Tauri 2): the commands the UI calls, the preview window, and the native pieces (folder picker, message boxes, shell thumbnails, image decoding with Windows' codecs).
+- `ui`: the main and preview windows' HTML, CSS and JavaScript.
+- `tools/IconGen`: the icon generator (.NET; only needed to redraw the icon).
+- `src`, `tests`: the Sortr 1.x .NET app, kept until the Rust version is verified.
 
 ## License
 
