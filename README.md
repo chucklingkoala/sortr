@@ -6,6 +6,14 @@
 
 **[⬇ Download Sortr.exe](https://github.com/chucklingkoala/sortr/releases/latest)**: a single file of about 3.5 MB with nothing to install. It runs on 64-bit Windows 10/11.
 
+> **Sortr 2 is rewritten in Rust.** Version 1.x was a .NET/WPF app whose exe was about 60 MB, mostly the bundled .NET runtime. Version 2 does the same job in about 3.5 MB. It uses [Tauri](https://tauri.app/) for the window and Microsoft Edge WebView2, which is built into Windows, for the UI.
+>
+> - **Upgrading:** replace the old exe. Your saved folders and undo history carry over, and Sortr 2 can undo a move made by 1.x.
+> - **WMV and AVI previews:** these show a thumbnail instead of playing, because WebView2 can't play them.
+> - **Animated GIFs** now play.
+>
+> The last .NET release is [v1.2.0](https://github.com/chucklingkoala/sortr/releases/tag/v1.2.0).
+
 You have a folder full of loose files whose names mention who or what they belong to:
 
 ```
@@ -101,7 +109,7 @@ The preview never stops a file from being moved: a playing video is stopped befo
 
 ## Building
 
-Requires [Rust](https://rustup.rs/) (stable). There is no Node.js or other front-end toolchain: the UI in `ui/` is plain HTML, CSS and JavaScript, embedded into the exe as it is.
+Sortr is written in Rust. Building it requires [Rust](https://rustup.rs/) (stable). There is no Node.js or other front-end toolchain: the UI in `ui/` is plain HTML, CSS and JavaScript, embedded into the exe as it is.
 
 ```
 cargo test --workspace
@@ -116,7 +124,9 @@ A debug build (`cargo run`) also opens a console window for log output.
 cargo build --release
 ```
 
-This produces `target/release/Sortr.exe`, a single file of about 3.5 MB. It runs on any 64-bit Windows 10/11 PC. Settings that keep it small are in the root [Cargo.toml](Cargo.toml): optimise for size, link-time optimisation, no unwinding, no symbols.
+This produces `target/release/Sortr.exe`, about 3.5 MB. It runs on any 64-bit Windows 10/11 PC. Settings that keep it small are in the root [Cargo.toml](Cargo.toml): optimise for size, link-time optimisation, no unwinding, no symbols.
+
+With Rust's default MSVC toolchain, which the release workflow uses, the exe is a single file: the WebView2 loader and the Visual C++ runtime are built into it. With the GNU toolchain (`x86_64-pc-windows-gnu`), the exe needs the `WebView2Loader.dll` that the build places next to it. Keep the two files together.
 
 The UI runs in Microsoft Edge WebView2, which comes with Windows 11 and updated Windows 10. It isn't bundled into the exe. If it's missing, Sortr shows a message with the download link instead of starting.
 
