@@ -88,9 +88,11 @@
                   RowHeight="38" EnableRowVirtualization="True"
                   VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                   PreviewKeyDown="ResultsGrid_PreviewKeyDown"
+                  SelectionChanged="ResultsGrid_SelectionChanged"
                   MouseDoubleClick="ResultsGrid_MouseDoubleClick">
             <DataGrid.ContextMenu>
                 <ContextMenu>
+                    <MenuItem Header="Preview (P)" Click="Preview_Click" />
                     <MenuItem Header="Open file" Click="OpenFile_Click" />
                     <MenuItem Header="Show in Explorer" Click="ShowInExplorer_Click" />
                     <Separator />

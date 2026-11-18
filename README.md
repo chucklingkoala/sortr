@@ -75,10 +75,22 @@ Some rules reduce false matches:
 ## Review shortcuts
 
 - **Space** ticks or unticks all highlighted rows.
+- **P** opens a preview of the highlighted file in a separate window (also on the right-click menu). While it's open, **↑/↓** steps through the list and the preview follows. Press **P** or **Esc** to close it.
 - **Double-click** a row to open the file.
 - Right-click a row for **Show in Explorer**.
 - Choosing a target from an ambiguous row's dropdown ticks that row.
 - In an unmatched row's search box: type to filter the targets, use **↑/↓** to move through the list, press **Enter** or click to pick, and press **Esc** to cancel. Picking a target ticks the row. Clearing the box and pressing **Enter** removes the target.
+
+### What the preview shows
+
+| File | Preview |
+|---|---|
+| Images (JPG, PNG, GIF, BMP, TIFF, ICO; WebP and HEIC if Windows has the codec) | The picture, upright even if a phone saved it sideways. Animated GIFs show their first frame. |
+| Video and audio (MP4, MOV, WMV, AVI, MP3, WAV, …) | A player with play/pause, seek and mute. Videos start playing muted; audio waits for **Play**. Formats depend on the codecs Windows has; anything it can't play falls back to the thumbnail. |
+| Text (TXT, MD, LOG, CSV, JSON, XML, code, and files with no extension that contain text) | The first 256 KB. |
+| Anything else (PDF, Office, archives, …) | The thumbnail or icon Explorer would show. Click **Open** to view it in its default app. |
+
+The preview never stops a file from being moved: a playing video is stopped before **Move selected** or **Undo** starts.
 
 ## Safety
 
