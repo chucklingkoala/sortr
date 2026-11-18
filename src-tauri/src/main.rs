@@ -1,18 +1,46 @@
 // No console window in release builds.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::path::PathBuf;
+mod commands;
+mod imaging;
+mod shell;
+mod theme;
 
 use tauri::{WebviewUrl, WebviewWindowBuilder};
 
 fn main() {
     // Sortr's UI runs in WebView2. It ships with Windows 11 and updated Windows 10, but say so plainly if it's missing.
     if tauri::webview_version().is_err() {
-        show_webview2_missing();
+        shell::message_box(
+            0,
+            "error",
+            "Sortr",
+            "Sortr needs the Microsoft Edge WebView2 Runtime, which isn't installed on this PC.\n\n\
+             Download it from https://go.microsoft.com/fwlink/p/?LinkId=2124703, then start Sortr again.",
+        );
         return;
     }
 
     tauri::Builder::default()
+        .manage(commands::ScanState::default())
+        .invoke_handler(tauri::generate_handler![
+            commands::get_settings,
+            commands::folder_exists,
+            commands::pick_folder,
+            commands::message,
+            commands::scan,
+            commands::search_targets,
+            commands::move_files,
+            commands::latest_batch_size,
+            commands::undo_latest,
+            commands::open_file,
+            commands::show_in_explorer,
+            commands::preview_info,
+            commands::read_text,
+            commands::decode_image,
+            commands::thumbnail,
+            commands::accent_colors,
+        ])
         .setup(|app| {
             let title = format!("Sortr {}", app.package_info().version);
             WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))
@@ -20,28 +48,10 @@ fn main() {
                 .inner_size(1180.0, 720.0)
                 .min_inner_size(760.0, 420.0)
                 .center()
-                .data_directory(webview_data_dir())
+                .data_directory(sortr_core::paths::webview_directory())
                 .build()?;
             Ok(())
         })
         .run(tauri::generate_context!())
         .expect("Sortr failed to start");
-}
-
-/// Keeps WebView2's cache next to Sortr's own data in %LocalAppData%\Sortr.
-fn webview_data_dir() -> PathBuf {
-    let base = std::env::var_os("LOCALAPPDATA").map(PathBuf::from).unwrap_or_else(std::env::temp_dir);
-    base.join("Sortr").join("WebView2")
-}
-
-fn show_webview2_missing() {
-    use windows_sys::Win32::UI::WindowsAndMessaging::{MB_ICONERROR, MB_OK, MessageBoxW};
-
-    let text = "Sortr needs the Microsoft Edge WebView2 Runtime, which isn't installed on this PC.\n\n\
-                Download it from https://go.microsoft.com/fwlink/p/?LinkId=2124703, then start Sortr again.";
-    let wide = |s: &str| s.encode_utf16().chain(Some(0)).collect::<Vec<u16>>();
-    let (text, caption) = (wide(text), wide("Sortr"));
-    unsafe {
-        MessageBoxW(std::ptr::null_mut(), text.as_ptr(), caption.as_ptr(), MB_OK | MB_ICONERROR);
-    }
 }
