@@ -1,0 +1,22 @@
+[package]
+name = "sortr-core"
+description = "Sortr's matching, scanning, moving, undo and settings logic (no UI)."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Already in Tauri's dependency tree (via `url`), so they add little to the exe.
+icu_normalizer = "2"
+icu_properties = "2"
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_Storage_FileSystem",
+    "Win32_System_SystemInformation",
+] }
+
+[dev-dependencies]
+tempfile = "3"
